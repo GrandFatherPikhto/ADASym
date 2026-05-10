@@ -1,0 +1,166 @@
+\usepackage[russian]{babel}
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{siunitx}
+
+\usepackage{pdfpages}
+
+\usepackage{tablefootnote}
+
+% Дополнительные пакеты для данного документа
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+% \usepackage{hyperref}
+
+\geometry{a4paper, margin=25mm}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+
+\definecolor{adblue}{RGB}{0,84,166}
+
+\titleformat{\section}{\large\bfseries\color{adblue}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{}{0em}{}
+
+\sisetup{output-decimal-marker={,}}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, math, 3d, perspective, arrows.meta, graphs, graphdrawing, fit, shapes.geometric, trees}
+\usepackage{pgfplots} % для построения графиков
+\pgfplotsset{compat=1.18} % версия для совместимости
+\usepackage{tkz-euclide}
+
+% Библиотека схемотехники
+\usepackage[siunitx, RPvoltages, american]{circuitikzgit}
+\ctikzset{
+    amplifiers/fill=cyan,
+    sources/fill=green!20,
+    diodes/fill=white,
+    resistors/fill=violet,
+    grounds/scale=1.2,
+}
+
+\usepackage{iftex}
+
+\ifXeTeX % Если используется TeTeX или TeLaTeX
+  \typeout{Режим XeTeX}
+  \usepackage{xltxtra}
+  \usepackage{fontspec}
+  \usepackage{polyglossia}
+  \setmainlanguage{russian}
+  \setotherlanguage{english}
+  \setkeys{russian}{babelshorthands=true} % По идее включает <<, >>, -- ---
+
+  \setmainfont{Times New Roman}[Ligatures=TeX]
+  \setromanfont{Times New Roman}[Ligatures=TeX]
+  \setsansfont{Arial}[Ligatures=TeX]
+  \setmonofont{Courier New}[Ligatures=TeX] 
+
+  \newfontfamily{\cyrillicfont}{Times New Roman}
+  \newfontfamily{\cyrillicfontrm}{Times New Roman}
+  \newfontfamily{\cyrillicfonttt}{Courier New}
+  \newfontfamily{\cyrillicfontsf}{Arial}
+\fi
+
+\ifLuaTeX % Если используется LuaLatex
+  \typeout{Режим LuaTeX}
+%  \usepackage{luatextra}
+  \usepackage{fontspec}
+  \defaultfontfeatures{Ligatures={TeX}}
+  \usepackage{polyglossia}
+  \setmainlanguage{russian}
+  \setotherlanguage{english}
+  \setmainfont{Times New Roman}[Script=Cyrillic, Ligatures=TeX]
+  \setromanfont{Times New Roman}[Script=Cyrillic, Ligatures=TeX]
+  \setsansfont{Arial}[Script=Cyrillic, Ligatures=TeX]
+  \setmonofont{Courier New}[Ligatures=TeX]
+  \newfontfamily{\cyrillicfont}{Times New Roman}[Script=Cyrillic, Ligatures=TeX]
+  \newfontfamily{\cyrillicfontrm}{Times New Roman}[Script=Cyrillic, Ligatures=TeX]
+  \newfontfamily{\cyrillicfonttt}{Courier New}
+  \newfontfamily{\cyrillicfontsf}{Arial}[Script=Cyrillic, Ligatures=TeX]
+
+  \usegdlibrary{trees}
+  \usegdlibrary{force}
+\fi
+
+\ifPDFTeX % Если используется 8битный PDFTex
+  \typeout{8-битный режим pdfTex}
+  % For pdfTeX we must use old
+  % 8-bit font technologies
+  \usepackage[T2A]{fontenc}
+  \usepackage[english,russian]{babel}
+  \usepackage[utf8]{inputenc}
+  \usepackage[english, russian]{babel}
+
+  %\usepackage{newtxmath}
+  \usepackage{amsmath}
+  \usepackage{amsthm}
+  \usepackage{amssymb}
+  \usepackage{amsfonts}
+  \usepackage{mathtext}
+\fi
+
+\usepackage{amsthm}  % Возможности AMSMath
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{esvect} % Для красивых стрелок
+\usepackage{bm} % Для жирных символов
+
+%Hyphenation rules
+\usepackage{hyphenat}
+\hyphenation{ма-те-ма-ти-ка вос-ста-нав-ли-вать ото-бра-жа-ют-ся сге-не-ри-ро-ван-ном сим-во-лы}
+% \usepackage[english, russian]{babel}
+
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\usepackage{empheq}
+
+\usepackage{float}
+
+% \usepackage{comment}
+
+\usepackage[hidelinks,
+    unicode=true,          % поддерживает Unicode в закладках
+    psdextra=true,      % автоматически конвертирует простую математику в текст
+    % focusdefault=false
+]{hyperref}
+
+
+% Окружение "Теорема"
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+% Окружение "Определение"
+\theoremstyle{definition} % Прямой шрифт, нумерация
+\newtheorem{definition}{Определение}[section]
+\newtheorem{example}{Пример}[section]
+
+% Окружение "Замечание"
+\theoremstyle{remark} % Прямой шрифт, без нумерации
+% Окуржение "Решение"
+\newtheorem*{solution}{Решение}
+\newtheorem*{remark}{Замечание}
+
+\usepackage{polynom}
+\usepackage{tabularx}
+\usepackage{cancel}
+
+\addto\captionsrussian{%
+  \renewcommand{\figurename}{Рис.}%
+  \renewcommand{\tablename}{Табл.}%
+}
+
+\renewcommand{\arraystretch}{1.5} % Высота строки таблицы
+
+\renewcommand{\labelitemi}{\(\circ\)} % Бюллет -- пустой кружок в itemize
