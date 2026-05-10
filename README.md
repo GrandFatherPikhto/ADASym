@@ -233,28 +233,27 @@ ADA4870 – усилитель с токовой обратной связью (
 Пример фрагмента отчёта:
 
 ```
-2026-05-10 15:56:45 [INFO] ADASim.main: Конфигурация загружена из config.json
-2026-05-10 15:56:45 [INFO] ADASim.calculation: === Старт подбора номиналов ===
-2026-05-10 15:56:45 [INFO] ADASim.calculation: Макс. амплитуда без клиппирования: ±16.0 В, пиковый ток нагрузки: 0.636 А
-2026-05-10 15:56:45 [INFO] ADASim.calculation: 
-    Ra |   Rf(расч) |  Rf(E96) |   Rb(расч) |  Rb(E96) | Cf(пФ) |    A_v
-2026-05-10 15:56:45 [INFO] ADASim.calculation: -------------------------------------------------------------------------
-2026-05-10 15:56:45 [INFO] ADASim.calculation:     50 |      702.8 |    698.0 |       46.7 |     46.4 |    2.0 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation:     75 |     1054.2 |   1050.0 |       70.0 |     69.8 |    2.0 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation:    100 |     1405.6 |   1400.0 |       93.4 |     93.1 |    2.2 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation:    120 |     1686.7 |   1690.0 |      112.0 |    113.0 |    2.3 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation:    150 |     2108.4 |   2100.0 |      140.0 |    140.0 |    2.6 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation:    200 |     2811.2 |   2800.0 |      186.7 |    187.0 |    2.9 | 14.056
-2026-05-10 15:56:45 [INFO] ADASim.calculation: Найдено 6 подходящих комбинаций
-2026-05-10 15:56:45 [INFO] ADASim.calculation: Комбинации отсортированы по ошибке балансировки Rb (δRb).
-2026-05-10 15:56:45 [INFO] ADASim.main: Выбрана комбинация: Ra=150 Ом, Rf=2100.0 Ом, Rb=140.0 Ом, Cf=2.6 пФ, R_load=22 Ом
-2026-05-10 15:56:45 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:56:49 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:56:49 [INFO] ADASim.simulation: Экспорт данных из temp\ada4807_4870_1.raw...
-2026-05-10 15:56:49 [INFO] ADASim.simulation: CSV сохранён: out\ada4870_raw_export.csv
-2026-05-10 15:56:49 [INFO] ADASim.plotting: Построение временных графиков из out\ada4870_raw_export.csv
-2026-05-10 15:57:35 [INFO] ADASim.plotting: Построение спектра гармоник
-2026-05-10 15:57:44 [INFO] ADASim.report: Текстовый отчёт сохранён: out\report.txt
+ADASim.main: Конфигурация загружена из config.json
+ADASim.calculation: === Старт подбора номиналов ===
+ADASim.calculation: Макс. амплитуда без клиппирования: ±16.0 В, пиковый ток нагрузки: 0.636 А
+ADASim.calculation: Ra |   Rf(расч) |  Rf(E96) |   Rb(расч) |  Rb(E96) | Cf(пФ) |    A_v
+ADASim.calculation: -------------------------------------------------------------------------
+ADASim.calculation:     50 |      702.8 |    698.0 |       46.7 |     46.4 |    2.0 | 14.056
+ADASim.calculation:     75 |     1054.2 |   1050.0 |       70.0 |     69.8 |    2.0 | 14.056
+ADASim.calculation:    100 |     1405.6 |   1400.0 |       93.4 |     93.1 |    2.2 | 14.056
+ADASim.calculation:    120 |     1686.7 |   1690.0 |      112.0 |    113.0 |    2.3 | 14.056
+ADASim.calculation:    150 |     2108.4 |   2100.0 |      140.0 |    140.0 |    2.6 | 14.056
+ADASim.calculation:    200 |     2811.2 |   2800.0 |      186.7 |    187.0 |    2.9 | 14.056
+ADASim.calculation: Найдено 6 подходящих комбинаций
+ADASim.calculation: Комбинации отсортированы по ошибке балансировки Rb (δRb).
+ADASim.main: Выбрана комбинация: Ra=150 Ом, Rf=2100.0 Ом, Rb=140.0 Ом, Cf=2.6 пФ, R_load=22 Ом
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation: Экспорт данных из temp\ada4807_4870_1.raw...
+ADASim.simulation: CSV сохранён: out\ada4870_raw_export.csv
+ADASim.plotting: Построение временных графиков из out\ada4870_raw_export.csv
+ADASim.plotting: Построение спектра гармоник
+ADASim.report: Текстовый отчёт сохранён: out\report.txt
 ============================================================
 ОТЧЁТ О ПОДБОРЕ НОМИНАЛОВ ДЛЯ ADA4870 / ADA4807-2
 ============================================================
@@ -292,32 +291,32 @@ ADA4870 – усилитель с токовой обратной связью (
   CSV с сигналами: out\ada4870_raw_export.csv
   Лог LTSpice:     temp\ada4807_4870_1.log
 ============================================================
-2026-05-10 15:57:44 [INFO] ADASim.main: === Процесс завершён успешно ===
-2026-05-10 15:57:44 [INFO] ADASim.simulation: Сканирование частоты 0.10 МГц
-2026-05-10 15:57:44 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:57:47 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:57:47 [INFO] ADASim.simulation:   THD = 0.060179%
-2026-05-10 15:57:47 [INFO] ADASim.simulation: Сканирование частоты 0.50 МГц
-2026-05-10 15:57:47 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:57:51 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:57:51 [INFO] ADASim.simulation:   THD = 0.062525%
-2026-05-10 15:57:51 [INFO] ADASim.simulation: Сканирование частоты 1.00 МГц
-2026-05-10 15:57:51 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:57:54 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:57:54 [INFO] ADASim.simulation:   THD = 0.060912%
-2026-05-10 15:57:54 [INFO] ADASim.simulation: Сканирование частоты 2.00 МГц
-2026-05-10 15:57:54 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:57:58 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:57:58 [INFO] ADASim.simulation:   THD = 0.059417%
-2026-05-10 15:57:58 [INFO] ADASim.simulation: Сканирование частоты 3.00 МГц
-2026-05-10 15:57:58 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:58:01 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:58:01 [INFO] ADASim.simulation:   THD = 0.057790%
-2026-05-10 15:58:01 [INFO] ADASim.simulation: Сканирование частоты 5.00 МГц
-2026-05-10 15:58:01 [INFO] ADASim.simulation: === Подготовка симуляции ===
-2026-05-10 15:58:05 [INFO] ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
-2026-05-10 15:58:05 [INFO] ADASim.simulation:   THD = 0.045900%
-2026-05-10 15:58:05 [INFO] ADASim.plotting: Построение графика деградации THD
+ADASim.main: === Процесс завершён успешно ===
+ADASim.simulation: Сканирование частоты 0.10 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.060179%
+ADASim.simulation: Сканирование частоты 0.50 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.062525%
+ADASim.simulation: Сканирование частоты 1.00 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.060912%
+ADASim.simulation: Сканирование частоты 2.00 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.059417%
+ADASim.simulation: Сканирование частоты 3.00 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.057790%
+ADASim.simulation: Сканирование частоты 5.00 МГц
+ADASim.simulation: === Подготовка симуляции ===
+ADASim.simulation: Симуляция завершена. raw: temp\ada4807_4870_1.raw
+ADASim.simulation:   THD = 0.045900%
+ADASim.plotting: Построение графика деградации THD
 ```
 
 ### Примеры графиков
