@@ -13,7 +13,7 @@ from pathlib import Path
 from logger_config import logger, setup_logging
 from calculation import select_components
 from simulation import LTspiceRunner
-from plotting import plot_time_domain, plot_spectrum
+from plotting import plot_time_domain, plot_spectrum, plot_degradation
 from report import generate_report
 
 
@@ -42,6 +42,7 @@ def main():
     # Берём первую (лучшую) комбинацию
     chosen = combinations[0]
     chosen['R_load'] = config['params']['R_load']   # <-- добавляем нагрузку
+    chosen.update(config.get('tran_settings', {}))  # добавляем настройки времени    
     logger.info(f"Выбрана комбинация: Ra={chosen['Ra']} Ом, Rf={chosen['Rf_e96']} Ом, "
                 f"Rb={chosen['Rb_e96']} Ом, Cf={chosen['Cf']} пФ, R_load={chosen['R_load']} Ом")
 
@@ -81,6 +82,21 @@ def main():
     generate_report(config, chosen, sim_info, config['simulation']['output_dir'])
 
     logger.info("=== Процесс завершён успешно ===")
+
+    # Пример после расчёта и одиночной симуляции
+    freqs = config['frequencies']   # список из JSON
+    chosen = combinations[0]
+    chosen['R_load'] = config['params']['R_load']
+
+    runner = LTspiceRunner(
+        schematic_path=config['schematic']['path'],
+        ltspice_exe=config['ltspice']['executable'],
+        temp_dir=config['simulation']['temp_dir'],
+        output_dir=config['simulation']['output_dir']
+        )
+
+    thd_results = runner.degradation_sweep(chosen, freqs)
+    plot_degradation(freqs, thd_results)    
 
 
 if __name__ == "__main__":

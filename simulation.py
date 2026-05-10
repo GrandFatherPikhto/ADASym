@@ -72,10 +72,30 @@ class LTspiceRunner:
 
         # Директивы моделирования:
         # - переходной процесс 0..15 мкс, сохранение данных с 10 мкс (пропускаем стартовые броски)
-        editor.add_instruction(" .tran 0 15u 10u 1n")
-        # - Фурье-анализ на заданной частоте, 10 гармоник, 5 периодов после 10 мкс
-        editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
+        # editor.add_instruction(" .tran 0 15u 10u 1n")
 
+        # - Фурье-анализ на заданной частоте, 10 гармоник, 5 периодов после 10 мкс
+        # editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
+
+        # ----- начало изменения -----
+        # Читаем настройки времени из параметров (можно тоже брать из конфига)
+        periods_transient = params.get('periods_transient', 10)
+        periods_analysis = params.get('periods_analysis', 10)
+        points_per_period = params.get('points_per_period', 1000)
+
+        T = 1.0 / freq_hz if freq_hz > 0 else 1e-6
+        tran_end = (periods_transient + periods_analysis) * T
+        tran_start = periods_transient * T
+        time_step = T / points_per_period
+
+        # Директива переходного процесса
+        editor.add_instruction(
+            f" .tran 0 {tran_end:.6e} {tran_start:.6e} {time_step:.6e}"
+        )
+        # ----- конец изменения -----        
+        # Фурье-анализ с нужной частотой
+        editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
+        
         # Передаём параметры из расчёта
         editor.set_parameter('FREQ', str(freq_hz))
         editor.set_parameter('RfVal', str(params['Rf_e96']))
@@ -174,3 +194,33 @@ class LTspiceRunner:
 
         logger.debug(f"Извлечено {len(harmonics)} гармоник")
         return harmonics, amplitudes
+    
+    def degradation_sweep(self, chosen_params: dict, frequencies: list[float],
+                        show_progress: bool = True) -> list[float]:
+        """
+        Прогоняет симуляцию для каждой частоты из списка и возвращает список THD (в %).
+        
+        chosen_params: словарь с номиналами (Ra, Rf_e96, Rb_e96, Cf, R_load)
+        frequencies: список частот в Гц
+        """
+        thd_values = []
+        for freq in frequencies:
+            if show_progress:
+                logger.info(f"Сканирование частоты {freq/1e6:.2f} МГц")
+            self.run(chosen_params, freq)
+            thd_str = self.get_thd(self.log_file)
+            try:
+                thd_val = float(thd_str.replace('%', ''))
+            except ValueError:
+                thd_val = None
+                logger.warning(f"Не удалось извлечь THD для {freq} Гц")
+            thd_values.append(thd_val)
+            if show_progress:
+                logger.info(f"  THD = {thd_str}")
+
+        output_path = Path(self.output_dir / "thd_vs_freq.csv")
+
+        df = pd.DataFrame({'Frequency_Hz': frequencies, 'THD_%': thd_values})
+        df.to_csv(output_path, index=False)
+
+        return thd_values    

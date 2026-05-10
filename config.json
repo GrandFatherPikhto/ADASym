@@ -23,5 +23,10 @@
         "Cf_per_kohm": 0.5e-12,
         "Rf_threshold": 1000
     },
-    "frequencies": [100000, 500000, 1000000, 2000000, 3000000, 5000000]
+    "frequencies": [100000, 500000, 1000000, 2000000, 3000000, 5000000],
+    "tran_settings": {
+        "periods_transient": 10,
+        "periods_analysis": 10,
+        "points_per_period": 1000
+    }    
 }
