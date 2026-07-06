@@ -232,3 +232,4 @@ class LTspiceRunner:
         df.to_csv(output_path, index=False)
 
         return thd_values    
+    

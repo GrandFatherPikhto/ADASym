@@ -37,5 +37,10 @@
     "netlist_generator": {
         "generate_netlist": true,
         "output_dir" : "net"
-    }
+    },
+    "ac_analysis": {
+        "freq_start": 1000,
+        "freq_stop": 100000000,
+        "points_per_decade": 100
+    }    
 }
