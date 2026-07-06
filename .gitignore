@@ -39,6 +39,7 @@ build/
 htmlcov/
 
 # Сгенерированные файлы
+out/
 out/*.txt
 out/*.log
 
