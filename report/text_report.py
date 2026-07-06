@@ -1,6 +1,8 @@
 """
 Модуль создания подробного текстового отчёта о подборе и симуляции.
 Сохраняется в файл report.txt в папке output_dir.
+
+(Перенесено из report.py без изменения логики — только путь модуля.)
 """
 
 from pathlib import Path
@@ -8,14 +10,6 @@ from logger_config import logger
 
 
 def generate_report(config: dict, combo: dict, sim_info: dict, output_dir: str = "./out"):
-    """
-    Создаёт текстовый отчёт и сохраняет в output_dir/report.txt.
-
-    config   – полный словарь конфига (из config.json),
-    combo    – выбранная комбинация номиналов (из results),
-    sim_info – словарь с результатами симуляции:
-               {'freq': частота, 'thd': строка THD, 'csv_path': путь к CSV, 'log_path': путь к .log}
-    """
     out_path = Path(output_dir) / "report.txt"
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -49,18 +43,18 @@ def generate_report(config: dict, combo: dict, sim_info: dict, output_dir: str =
         f"  Ожидаемая амплитуда      = {combo['A_v_real'] * p['I_FS'] * p['R_TIA']:.2f} В",
         f"  Пиковый ток нагрузки     = {p['V_out_amp'] / p['R_load']:.3f} А",
         "",
+        "Известная особенность топологии (см. docs/known_issues.md):",
+        "  Коэффициенты по инв./неинв. плечу отличаются на ~1 (|Rf/Ra| и |1+Rf/Ra|),",
+        "  это не лечится подбором Ra/Rb — см. известные ограничения проекта.",
+        "",
         "Результаты симуляции:",
         f"  Частота: {sim_info.get('freq', 0)/1e6:.2f} МГц",
         f"  THD: {sim_info['thd']}",
-        f"  Постоянная составляющая: не измерялась (добавить при необходимости)",
         "",
         "Файлы:",
         f"  CSV с сигналами: {sim_info.get('csv_path', 'N/A')}",
         f"  Лог LTSpice:     {sim_info.get('log_path', 'N/A')}",
-        f"  CSV с сигналами: {sim_info.get('csv_path', 'N/A')}",
-        f"  Лог LTSpice:     {sim_info.get('log_path', 'N/A')}",
-        f"  Netlist (очищенный):    {sim_info.get('clean_net_path', 'N/A')}",
-        f"  Netlist (читаемый):    {sim_info.get('readable_net_path', 'N/A')}",
+        f"  Читаемый отчёт по схеме: {sim_info.get('readable_net_path', 'N/A')}",
         "=" * 60
     ]
 
@@ -69,4 +63,4 @@ def generate_report(config: dict, combo: dict, sim_info: dict, output_dir: str =
         f.write(report_text)
 
     logger.info(f"Текстовый отчёт сохранён: {out_path}")
-    print(report_text)  # также выводим в консоль, если нужно
+    print(report_text)

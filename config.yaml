@@ -1,0 +1,52 @@
+schematic:
+  path: ada4807_4870.asc
+  # Директории для поиска .asy символов (кастомные + при желании штатные примитивы LTspice)
+  symbol_search_paths:
+    - .
+    - C:\Users\grand\AppData\Local\LTspice\lib\sym
+    - C:\Users\grand\AppData\Local\LTspice\lib\sym\OpAmps
+    # - C:\Users\grand\AppData\Local\Programs\ADI\LTspice\lib\sym
+
+ltspice:
+  executable: C:\Users\grand\AppData\Local\Programs\ADI\LTspice\LTspice.exe
+
+simulation:
+  output_dir: ./out
+  temp_dir: ./temp
+
+params:
+  I_FS: 0.004             # полный ток DAC, А (AD9705, см. R19 на плате)
+  R_TIA: 249               # трансимпеданс TIA-каскада = R17/R18 на плате
+  V_out_amp: 14.0          # целевая амплитуда на выходе ADA4870, В
+  R_load: 22               # = R23 на плате
+  V_sup: 18                # питание ADA4870, В
+  V_headroom: 2.0          # запас до шины питания, В
+  I_out_max: 1.0           # макс. выходной ток ADA4870 по даташиту, А
+  Rf_max: 10000
+  Ra_candidates: [50, 75, 100, 120, 150, 200]
+  C_in_parasitic: 27.0e-12  # десятичная точка в мантиссе - см. примечание в config.py про pyyaml<5.1
+  Rf_target: 1210
+
+frequencies: [100000, 500000, 1000000, 2000000, 3000000, 5000000]
+
+tran_settings:
+  periods_transient: 10
+  periods_analysis: 10
+  points_per_period: 1000
+
+plots:
+  time_domain: true
+  spectrum: true
+  degradation: true
+  input_currents: true
+  save: true
+  show: false
+
+netlist_generator:
+  generate_netlist: true
+  output_dir: net
+
+ac_analysis:
+  freq_start: 1000
+  freq_stop: 100000000
+  points_per_decade: 100

@@ -7,11 +7,11 @@
 - запуск и ожидание завершения,
 - экспорт результатов в CSV,
 - извлечение THD и данных Фурье из лога.
+
+(Перенесено из simulation.py без изменения логики — только путь модуля.)
 """
 
-import os
 import re
-import shutil
 from pathlib import Path
 import pandas as pd
 from PyLTSpice import SimRunner, SpiceEditor, RawRead
@@ -19,18 +19,6 @@ from logger_config import logger
 
 
 class LTspiceRunner:
-    """
-    Управляет запуском симуляции LTSpice и обработкой результатов.
-
-    Атрибуты:
-        schematic_path (str): путь к файлу .asc
-        ltspice_exe (str): путь к исполняемому файлу LTspice
-        temp_dir (Path): папка для временных файлов симуляции
-        output_dir (Path): папка для итоговых CSV и отчётов
-        raw_file (str): путь к последнему .raw файлу
-        log_file (str): путь к последнему .log файлу
-    """
-
     def __init__(self, schematic_path: str, ltspice_exe: str,
                  temp_dir: str = "./temp", output_dir: str = "./out"):
         self.schematic_path = schematic_path
@@ -40,7 +28,6 @@ class LTspiceRunner:
         self.raw_file = None
         self.log_file = None
 
-        # Создаём папки при необходимости
         self.temp_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -55,30 +42,11 @@ class LTspiceRunner:
                     logger.warning(f"Не удалось удалить {f}: {e}")
 
     def run(self, params: dict, freq_hz: float) -> tuple[str, str]:
-        """
-        Запускает симуляцию с переданными параметрами схемы.
-
-        params: словарь, содержащий ключи 'Rf_e96', 'Ra', 'Rb_e96', 'Cf' и 'R_load'.
-                Обычно это одна комбинация, выбранная из результатов расчёта.
-        freq_hz: частота входного синуса в герцах.
-
-        Возвращает кортеж (raw_path, log_path).
-        """
         logger.info("=== Подготовка симуляции ===")
         self._clean_temp()
 
-        # Создаём редактор на основе оригинальной схемы (оригинал не изменяется)
         editor = SpiceEditor(self.schematic_path)
 
-        # Директивы моделирования:
-        # - переходной процесс 0..15 мкс, сохранение данных с 10 мкс (пропускаем стартовые броски)
-        # editor.add_instruction(" .tran 0 15u 10u 1n")
-
-        # - Фурье-анализ на заданной частоте, 10 гармоник, 5 периодов после 10 мкс
-        # editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
-
-        # ----- начало изменения -----
-        # Читаем настройки времени из параметров (можно тоже брать из конфига)
         periods_transient = params.get('periods_transient', 10)
         periods_analysis = params.get('periods_analysis', 10)
         points_per_period = params.get('points_per_period', 1000)
@@ -88,32 +56,21 @@ class LTspiceRunner:
         tran_start = periods_transient * T
         time_step = T / points_per_period
 
-        # Директива переходного процесса
         editor.add_instruction(
             f" .tran 0 {tran_end:.6e} {tran_start:.6e} {time_step:.6e}"
         )
-        # ----- конец изменения -----        
-        # Фурье-анализ с нужной частотой
         editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
-        
-        # Передаём параметры из расчёта
+
         editor.set_parameter('FREQ', str(freq_hz))
         editor.set_parameter('RfVal', str(params['Rf_e96']))
         editor.set_parameter('RloadVal', str(params['R_load']))
 
-        # После установки RfVal, RloadVal и т.д.
-        editor.set_component_value('Rfn', str(params['R_TIA']))   # Rfn = R_TIA (249 Ом)
-        editor.set_component_value('Rfp', str(params['R_TIA']))   # Rfp = R_TIA
-        editor.set_component_value('Cf', f"{params['Cf']}p")      # Cf в пикофарадах
-
-        # Устанавливаем конкретные номиналы компонентов (если в схеме есть имена)
+        editor.set_component_value('Rfn', str(params['R_TIA']))
+        editor.set_component_value('Rfp', str(params['R_TIA']))
+        editor.set_component_value('Cf', f"{params['Cf']}p")
         editor.set_component_value('Ra', str(params['Ra']))
         editor.set_component_value('Rb', str(params['Rb_e96']))
-        # Cf ожидается в формате "2p" -> передаём как есть с суффиксом 'p'
         editor.set_component_value('Cf', f"{params['Cf']}p")
-
-
-        # editor.add_instruction(".save I(B§IOUTA) I(B§IOUTB)")   # сохраняем токи источников
 
         logger.debug("Параметры редактора установлены, запуск LTspice...")
 
@@ -131,18 +88,9 @@ class LTspiceRunner:
         return self.raw_file, self.log_file
 
     def export_raw_to_csv(self, raw_path: str, name: str = "ada4870") -> Path:
-        """
-        Читает .raw файл, извлекает все кривые и сохраняет в CSV.
-
-        raw_path: путь к файлу .raw
-        name: базовое имя выходного CSV (добавится '_raw_export.csv')
-
-        Возвращает путь к созданному CSV.
-        """
         logger.info(f"Экспорт данных из {raw_path}...")
         raw = RawRead(raw_path)
 
-        # Временная ось
         time_trace = raw.get_trace('time')
         if time_trace is None:
             raise ValueError("В .raw файле не найдена ось времени (time)")
@@ -164,10 +112,6 @@ class LTspiceRunner:
 
     @staticmethod
     def get_thd(log_path: str) -> str:
-        """
-        Извлекает последнее значение Total Harmonic Distortion из .log файла.
-        Возвращает строку, например "0.0065%".
-        """
         thd = "N/A"
         with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f:
@@ -178,20 +122,14 @@ class LTspiceRunner:
 
     @staticmethod
     def get_fourier_data(log_path: str) -> tuple[list[int], list[float]]:
-        """
-        Извлекает последний блок Фурье-анализа из .log.
-        Возвращает два списка: номера гармоник и амплитуды (В).
-        """
         with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
 
-        # Разбиваем на блоки "Fourier components of ..."
         blocks = content.split("Fourier components of")
         if len(blocks) < 2:
             logger.warning("В логе не найден Фурье-анализ")
             return [], []
 
-        # Берём последний блок – самый свежий
         last_block = blocks[-1]
         harmonics = []
         amplitudes = []
@@ -202,15 +140,9 @@ class LTspiceRunner:
 
         logger.debug(f"Извлечено {len(harmonics)} гармоник")
         return harmonics, amplitudes
-    
+
     def degradation_sweep(self, chosen_params: dict, frequencies: list[float],
                         show_progress: bool = True) -> list[float]:
-        """
-        Прогоняет симуляцию для каждой частоты из списка и возвращает список THD (в %).
-        
-        chosen_params: словарь с номиналами (Ra, Rf_e96, Rb_e96, Cf, R_load)
-        frequencies: список частот в Гц
-        """
         thd_values = []
         for freq in frequencies:
             if show_progress:
@@ -227,9 +159,7 @@ class LTspiceRunner:
                 logger.info(f"  THD = {thd_str}")
 
         output_path = Path(self.output_dir / "thd_vs_freq.csv")
-
         df = pd.DataFrame({'Frequency_Hz': frequencies, 'THD_%': thd_values})
         df.to_csv(output_path, index=False)
 
-        return thd_values    
-    
+        return thd_values

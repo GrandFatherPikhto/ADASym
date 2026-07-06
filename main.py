@@ -1,33 +1,25 @@
 """
 Главный исполняемый модуль.
 
-Загружает конфигурацию, выполняет расчёт номиналов, запускает LTspice,
-строит графики и генерирует итоговый отчёт.
+Запускать из папки adasim/ (например, `python main.py`) — как и раньше, только
+теперь код разложен по core/ltspice_io/report вместо одной плоской папки.
+
+Загружает конфигурацию (YAML), выполняет расчёт номиналов, читает .asc через
+asc_parser (с именами пинов из .asy — см. asy_parser.py), запускает LTspice,
+строит и сохраняет графики, генерирует итоговый отчёт.
 """
 
-import os
-import json
-import sys
 from pathlib import Path
 
 from logger_config import logger, setup_logging
-from calculation import select_components
-from simulation import LTspiceRunner
-from plotting import plot_time_domain, plot_spectrum, plot_degradation, plot_input_currents
-from report import generate_report
-from netlist_generator import generate_netlist
+from config import load_config
+from core.calculation import select_components
+from ltspice_io.runner import LTspiceRunner
+from ltspice_io.asc_parser import parse_asc
+from ltspice_io.readable_report import generate_readable_report
+from report.plotting import plot_time_domain, plot_spectrum, plot_degradation, plot_input_currents
+from report.text_report import generate_report
 
-
-def load_config(config_path: str) -> dict:
-    """Загружает конфигурацию из JSON-файла."""
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-        logger.info(f"Конфигурация загружена из {config_path}")
-        return config
-    except Exception as e:
-        logger.critical(f"Не удалось загрузить конфиг: {e}")
-        sys.exit(1)
 
 def select_best_combination(params: dict) -> dict:
     """Выбирает лучшую комбинацию номиналов из рассчитанных."""
@@ -40,8 +32,25 @@ def select_best_combination(params: dict) -> dict:
     return chosen
 
 
+def build_readable_schematic_report(config: dict) -> Path | None:
+    """Строит читаемый отчёт по .asc напрямую (без промежуточного .net от LTspice)."""
+    sch_cfg = config.get('schematic', {})
+    nl_cfg = config.get('netlist_generator', {})
+    if not nl_cfg.get('generate_netlist', False):
+        return None
+
+    asc_path = sch_cfg['path']
+    search_paths = sch_cfg.get('symbol_search_paths', ['.'])
+    schematic = parse_asc(asc_path, search_paths)
+
+    output_dir = Path(nl_cfg.get('output_dir', 'net'))
+    readable_path = output_dir / f"{Path(asc_path).stem}_readable.txt"
+    generate_readable_report(schematic, Path(asc_path).name, readable_path)
+    logger.info(f"Читаемый отчёт по схеме (с именами пинов): {readable_path}")
+    return readable_path
+
+
 def setup_runner(config: dict) -> LTspiceRunner:
-    """Создаёт и возвращает экземпляр LTspiceRunner."""
     return LTspiceRunner(
         schematic_path=config['schematic']['path'],
         ltspice_exe=config['ltspice']['executable'],
@@ -51,9 +60,6 @@ def setup_runner(config: dict) -> LTspiceRunner:
 
 
 def run_single_simulation(runner: LTspiceRunner, chosen: dict, freq: float) -> tuple:
-    """
-    Запускает одиночную симуляцию, возвращает (raw_path, log_path, csv_path, thd, harmonics, amplitudes).
-    """
     raw_path, log_path = runner.run(chosen, freq)
     csv_path = runner.export_raw_to_csv(raw_path)
     thd = runner.get_thd(log_path)
@@ -61,29 +67,27 @@ def run_single_simulation(runner: LTspiceRunner, chosen: dict, freq: float) -> t
     return raw_path, log_path, csv_path, thd, harmonics, amplitudes
 
 
-def generate_plots(plots_cfg: dict, csv_path: str, harmonics: list, amplitudes: list,
-                   thd: str, frequencies: list, thd_results: list = None, r_tia: float = None):
-    """Условно строит графики в соответствии с настройками."""
+def generate_plots(plots_cfg: dict, output_dir: str, csv_path: str, harmonics: list, amplitudes: list,
+                    thd: str, frequencies: list, thd_results: list = None, r_tia: float = None):
+    save = plots_cfg.get('save', True)
+    show = plots_cfg.get('show', False)
+
     if plots_cfg.get('time_domain', False):
-        plot_time_domain(csv_path)
+        plot_time_domain(csv_path, output_dir, save=save, show=show)
     if plots_cfg.get('spectrum', False):
-        plot_spectrum(harmonics, amplitudes, thd)
+        plot_spectrum(harmonics, amplitudes, thd, output_dir, save=save, show=show)
     if plots_cfg.get('input_currents', False) and r_tia is not None:
-        plot_input_currents(csv_path, r_tia)
+        plot_input_currents(csv_path, r_tia, output_dir, save=save, show=show)
     if plots_cfg.get('degradation', False) and thd_results is not None:
-        plot_degradation(frequencies, thd_results)   
+        plot_degradation(frequencies, thd_results, output_dir, save=save, show=show)
+
 
 def main():
     setup_logging("simulation.log")
-    config = load_config("config.json")
+    config = load_config("config.yaml")
 
-    # 1. Генерируем нетлисты (для сверки и вычитывания)
-    generate_netlist(config)
-    clean_net_path, readable_net_path = generate_netlist(config)
-    if clean_net_path:
-        logger.info(f"Netlist (чистый) сохранён: {clean_net_path}")
-        logger.info(f"Читаемый отчёт: {readable_net_path}")    
-
+    # 1. Читаемый отчёт по схеме (имена пинов, не номера)
+    readable_net_path = build_readable_schematic_report(config)
 
     # 2. Подбор номиналов
     chosen = select_best_combination(config['params'])
@@ -91,8 +95,7 @@ def main():
 
     # 3. Раннер
     runner = setup_runner(config)
-
-    r_tia=chosen['R_TIA']
+    r_tia = chosen['R_TIA']
 
     # 4. Одиночная симуляция на первой частоте
     first_freq = config['frequencies'][0]
@@ -100,17 +103,18 @@ def main():
         runner, chosen, first_freq
     )
 
-    # 5. Построение графиков (без деградации пока)
+    # 5. Графики (сохраняются в output_dir, по умолчанию без блокирующего show())
     plots_cfg = config.get('plots', {})
-    generate_plots(plots_cfg, csv_path, harmonics, amplitudes, thd, None, None, r_tia)
+    generate_plots(plots_cfg, config['simulation']['output_dir'], csv_path,
+                    harmonics, amplitudes, thd, None, None, r_tia)
 
     # 6. Свип по частотам для деградации (если запрошено)
     thd_results = None
     if plots_cfg.get('degradation', False):
         logger.info("Запуск sweep по частотам для оценки деградации THD...")
         thd_results = runner.degradation_sweep(chosen, config['frequencies'])
-        # Перестраиваем график деградации (если нужен отдельно, вызываем снова)
-        plot_degradation(config['frequencies'], thd_results)
+        plot_degradation(config['frequencies'], thd_results, config['simulation']['output_dir'],
+                          save=plots_cfg.get('save', True), show=plots_cfg.get('show', False))
 
     # 7. Отчёт
     sim_info = {
@@ -118,12 +122,12 @@ def main():
         'thd': thd,
         'csv_path': csv_path,
         'log_path': log_path,
-        'clean_net_path': clean_net_path,
-        'readable_net_path': readable_net_path        
+        'readable_net_path': readable_net_path,
     }
     generate_report(config, chosen, sim_info, config['simulation']['output_dir'])
 
     logger.info("=== Процесс завершён успешно ===")
+
 
 if __name__ == "__main__":
     main()
