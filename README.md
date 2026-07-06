@@ -230,7 +230,7 @@ python main.py
 ![Схема ADA4807-2 - ADA4870](images/scheme.png)
 
 Полный автоматически сгенерированный список пинов и цепей — в
-`net/ada4807_4870_readable.txt` (см. `ltspice_io/readable_report.py`).
+[`net/ada4807_4870_readable.txt`](ada4807_4870_readable.txt) (см. `ltspice_io/readable_report.py`).
 Здесь — смысл каждого блока схемы:
 
 ### Источники сигнала (эмуляция DAC)

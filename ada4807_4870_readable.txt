@@ -1,0 +1,48 @@
+=== ЧИТАЕМЫЙ ОТЧЁТ ПО СХЕМЕ: ada4807_4870.asc ===
+Всего компонентов: 25
+--------------------------------------------------------------------------------
+Имя        | Символ               | Номинал         | Пины -> Цепи
+--------------------------------------------------------------------------------
+Ca         | cap                  | 22p             | A->INN, B->0
+Cb         | cap                  | 22p             | A->INP, B->0
+Cf         | cap                  | {CfVal}         | A->SIGNAL, B->OUTA
+Cload      | cap                  | 220p            | A->0, B->SIGNAL
+Cpara      | cap                  | 5p              | A->INN, B->0
+Cparb      | cap                  | 5p              | A->INP, B->0
+IOUTA      | bi                   | I={IFS/2 + (IFS/2)*sin(2*pi*FREQ*time)} | +->0, -->INN
+IOUTB      | bi                   | I={IFS/2 + (IFS/2)*sin(2*pi*FREQ*time + pi)} | +->0, -->INP
+R1         | res                  | 2K              | A->VEE, B->SD
+R2         | res                  | 10K             | A->SD, B->0
+Ra         | res                  | {RaVal}         | A->OUTA, B->N_-656_-144
+Rb         | res                  | {RbVal}         | A->OUTB, B->N_-656_272
+Rf         | res                  | {RfVal}         | A->SIGNAL, B->OUTA
+Rfn        | res                  | {Rfn}           | A->N_-656_-144, B->INN
+Rfp        | res                  | {Rfp}           | A->N_-656_272, B->INP
+Rload      | res                  | {RloadVal}      | A->SIGNAL, B->0
+Rpara      | res                  | 150K            | A->INN, B->0
+Rparb      | res                  | 150K            | A->INP, B->0
+U1         | OpAmps\\ADA4870      |                 | 100->OUTB, 101->OUTA, 102->VDD, 103->VEE, 104->SIGNAL, 106->SD
+U2         | OpAmps\\ADA4807-2    |                 | 100->0, 101->INN, 102->P2V5, 103->N2V5, 104->N_-656_-144, 106->N_-672_-112
+U3         | OpAmps\\ADA4807-2    |                 | 100->0, 101->INP, 102->P2V5, 103->N2V5, 104->N_-656_272, 106->N_-672_304
+V1         | voltage              | 18              | +->VDD, -->0
+V2         | voltage              | 18              | +->0, -->VEE
+V3         | voltage              | 2.5             | +->0, -->N2V5
+V4         | voltage              | 2.5             | +->P2V5, -->0
+
+================================================================================
+--- АНАЛИЗ ЦЕПЕЙ (какие пины какого компонента объединяет каждая цепь) ---
+Цепь [0         ] -> Ca.B, Cb.B, Cload.A, Cpara.B, Cparb.B, IOUTA.+, IOUTB.+, R2.B, Rload.B, Rpara.B, Rparb.B, U2.100, U3.100, V1.-, V2.+, V3.+, V4.-
+Цепь [INN       ] -> Ca.A, Cpara.A, IOUTA.-, Rfn.B, Rpara.A, U2.101
+Цепь [INP       ] -> Cb.A, Cparb.A, IOUTB.-, Rfp.B, Rparb.A, U3.101
+Цепь [N2V5      ] -> U2.103, U3.103, V3.-
+Цепь [N_-656_-144] -> Ra.B, Rfn.A, U2.104
+Цепь [N_-656_272] -> Rb.B, Rfp.A, U3.104
+Цепь [N_-672_-112] -> U2.106
+Цепь [N_-672_304] -> U3.106
+Цепь [OUTA      ] -> Cf.B, Ra.A, Rf.B, U1.101
+Цепь [OUTB      ] -> Rb.A, U1.100
+Цепь [P2V5      ] -> U2.102, U3.102, V4.+
+Цепь [SD        ] -> R1.B, R2.A, U1.106
+Цепь [SIGNAL    ] -> Cf.A, Cload.B, Rf.A, Rload.A, U1.104
+Цепь [VDD       ] -> U1.102, V1.+
+Цепь [VEE       ] -> R1.A, U1.103, V2.-
