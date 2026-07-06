@@ -31,7 +31,7 @@
     "plots": {
         "time_domain": true,
         "spectrum": true,
-        "degradation": false,
+        "degradation": true,
         "input_currents": true
     },
     "netlist_generator": {
