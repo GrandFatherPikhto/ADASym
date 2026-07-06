@@ -4,8 +4,7 @@ schematic:
   symbol_search_paths:
     - .
     - C:\Users\grand\AppData\Local\LTspice\lib\sym
-    - C:\Users\grand\AppData\Local\LTspice\lib\sym\OpAmps
-    # - C:\Users\grand\AppData\Local\Programs\ADI\LTspice\lib\sym
+    - C:\Users\grand\AppData\Local\LTspice\lib\sym\OpAmps    
 
 ltspice:
   executable: C:\Users\grand\AppData\Local\Programs\ADI\LTspice\LTspice.exe
@@ -37,7 +36,7 @@ tran_settings:
 plots:
   time_domain: true
   spectrum: true
-  degradation: true
+  degradation: false
   input_currents: true
   save: true
   show: false
