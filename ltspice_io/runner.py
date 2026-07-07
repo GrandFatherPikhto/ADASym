@@ -56,10 +56,13 @@ class LTspiceRunner:
         tran_start = periods_transient * T
         time_step = T / points_per_period
 
+        # editor.add_instruction(f" .MEAS TRAN Vfinal FIND V(SIGNAL) AT={tran_end - time_step:.6e}")
         editor.add_instruction(
             f" .tran 0 {tran_end:.6e} {tran_start:.6e} {time_step:.6e}"
         )
         editor.add_instruction(f" .four {freq_hz} 10 5 V(SIGNAL)")
+        editor.add_instruction(" .options plotwinsize=0")
+        editor.add_instruction(" .options numdgt=7")
 
         editor.set_parameter('FREQ', str(freq_hz))
         editor.set_parameter('RfVal', str(params['Rf_e96']))
