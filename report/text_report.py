@@ -8,7 +8,6 @@
 from pathlib import Path
 from logger_config import logger
 
-
 def generate_report(config: dict, combo: dict, sim_info: dict, output_dir: str = "./out"):
     out_path = Path(output_dir) / "report.txt"
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -32,7 +31,7 @@ def generate_report(config: dict, combo: dict, sim_info: dict, output_dir: str =
         f"  V_diff_amp          = {p['I_FS'] * p['R_TIA']:.3f} В",
         f"  Требуемое усиление  = {p['V_out_amp'] / (p['I_FS'] * p['R_TIA']):.3f}",
         "",
-        "Подобранные номиналы (ближайшие E96):",
+        f"Подобранные номиналы (ближайшие E96):",
         f"  Ra          = {combo['Ra']} Ом",
         f"  Rf (расчёт) = {combo['Rf']} Ом  -> E96 = {combo['Rf_e96']} Ом",
         f"  Rb (расчёт) = {combo['Rb']} Ом  -> E96 = {combo['Rb_e96']} Ом",
