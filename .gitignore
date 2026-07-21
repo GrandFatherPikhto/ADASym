@@ -10,6 +10,7 @@ env/
 ENV/
 bin/
 lib/
+arch/
 
 # Распределения и пакеты
 dist/
@@ -60,3 +61,5 @@ versions
 net
 heap
 versions
+
+zip_project.*
